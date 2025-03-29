@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 
-addrs = ['D:/AI Courses/Semester 4/Brain Tumor/brain_tumor_dataset/Training',
-                'D:/AI Courses/Semester 4/Brain Tumor/brain_tumor_dataset/Testing']
 
-
-def preprocess():
+def preprocess(addrs):
+    
+    pwd = os.path.dirname(os.path.dirname(__file__))
+    addrs = [pwd + each for each in addrs]
     
     classes = os.listdir(addrs[0])
     labels = list(range(len(classes)))
