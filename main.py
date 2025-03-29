@@ -28,7 +28,8 @@ def main(args):
     print()
 
     model_trained, history = mdl.fit(dataloaders, criterion, opt, BATCH_SIZE, EPOCH, device)
-
+    torch.save(model_trained, './model.pth')
+    
     y, y_pred = model_trained.predict(dataloaders['test'], device=device)
     analyze.plot_heatmap(y, y_pred, list(cls2lbl.keys()))
     print()
