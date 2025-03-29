@@ -1,14 +1,22 @@
 from Dataprocess import preprocessing, analyze
 from Pipelines import img_aug_pipeline, data_pipeline
 import model
-from configs import BATCH_SIZE, device
+# from configs import BATCH_SIZE, device
+import torch
 import torch.nn as nn
 import torch.optim as optim
+import argparse
 
 
-def main():
+def main(args):
 
-    dfs, cls2lbl, lbl2cls = preprocessing.preprocess()
+    device = torch.device('cuda' if args['device'] else 'cpu')
+    BATCH_SIZE = args['batch']
+    EPOCH = args['epochs']
+    addrs = ['/brain_tumor_dataset/Training', '/brain_tumor_dataset/Testing']
+    
+    
+    dfs, cls2lbl, lbl2cls = preprocessing.preprocess(addrs)
     data_transform = img_aug_pipeline.data_transforms
     
     analyze.fetch_examples(dfs['train'], lbl2cls, data_transform)
@@ -18,7 +26,6 @@ def main():
     opt = optim.Adam(mdl.parameters(), lr = 0.001)
     criterion = nn.CrossEntropyLoss()
     print()
-    EPOCH = 10
 
     model_trained, history = mdl.fit(dataloaders, criterion, opt, BATCH_SIZE, EPOCH, device)
 
@@ -30,5 +37,18 @@ def main():
     analyze.plot_loss_acc(history)
 
 
+def initiate():
+
+    parse = argparse.ArgumentParser()
+
+    parse.add_argument('-e', '--epochs', dest='epochs', type=int, default=10)
+    parse.add_argument('-b', '--batch',dest='batch', type=int, default=16)
+    parse.add_argument('-r', '--resize',dest='img_resize', type=int, default=224)
+    parse.add_argument('-d', '--device',dest='device', default=False, action='store_true')
+    
+    args = vars(parse.parse_args())
+    main(args)
+
+
 if __name__ == '__main__':
-    main()
+    initiate()
