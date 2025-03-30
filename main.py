@@ -1,7 +1,7 @@
 from Dataprocess import preprocessing, analyze
 from Pipelines import img_aug_pipeline, data_pipeline
 import model
-# from configs import BATCH_SIZE, device
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,17 +10,23 @@ import argparse
 
 def main(args):
 
-    device = torch.device('cuda' if args['device'] else 'cpu')
+    device = torch.device('cpu' if args['device'] else 'cuda')
     BATCH_SIZE = args['batch']
     EPOCH = args['epochs']
+    RESIZE = args['img_resize']
     addrs = ['/brain_tumor_dataset/Training', '/brain_tumor_dataset/Testing']
     
     
     dfs, cls2lbl, lbl2cls = preprocessing.preprocess(addrs)
-    data_transform = img_aug_pipeline.data_transforms
+    data_transform = img_aug_pipeline.make_augmentation_pipeline(RESIZE)
     
-    analyze.fetch_examples(dfs['train'], lbl2cls, data_transform)
-    dataloaders = data_pipeline.build_dataloader(dfs['train'], dfs['test'], data_transform)
+    analyze.fetch_examples(dfs['train'], lbl2cls, data_transform, device=device)
+    dataloaders = data_pipeline.build_dataloader(
+        dfs['train'],
+        dfs['test'],
+        resize=RESIZE,
+        batch=BATCH_SIZE,
+        data_transforms=data_transform)
 
     mdl = model.Model(3).to(device)
     opt = optim.Adam(mdl.parameters(), lr = 0.001)
