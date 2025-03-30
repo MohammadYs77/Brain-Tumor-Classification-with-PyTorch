@@ -1,7 +1,3 @@
-import sys
-sys.path.append('D:/AI Courses/Semester 4/Brain Tumor/')
-from configs import device
-
 import numpy as np
 import sklearn.metrics as metrics
 from sklearn.metrics import classification_report
@@ -40,7 +36,7 @@ def plot_pie(tr_df, ts_df, cls2lbl):
     plt.show()
 
 
-def fetch_examples(tr_df, lbl2cls, data_transforms):
+def fetch_examples(tr_df, lbl2cls, data_transforms, device):
     sample_records = []
     num_classes = 4
     for label in range(num_classes):
@@ -104,7 +100,6 @@ def plot_loss_acc(history, figsize=(12,6)):
 
 
 if __name__ == '__main__':
-    
     import preprocessing
     dfs, cls2lbl, _ = preprocessing.preprocess()
     plot_pie(dfs['train'], dfs['test'], cls2lbl)
